@@ -1,0 +1,160 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ports
+data:
+  HTTP_PORT: "8080"
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: files
+data:
+  index.html: |
+    <!DOCTYPE html>
+    <html>
+    <head>
+    <meta charset="UTF-8">
+    <title>Пример базовой структуры HTML</title>
+    </head>
+    <body>
+    <h1>Заголовок страницы</h1>
+    <p>Это пример абзаца текста в HTML-документе.</p>
+    </body>
+    </html>
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+  labels:
+    app: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        volumeMounts:
+        - name: index
+          mountPath: /usr/share/nginx/html
+      - name: multitool
+        image: praqma/network-multitool
+        envFrom:
+        - configMapRef:
+            name: ports
+      volumes:
+      - name: index
+        configMap:
+          name: files
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: nginx-tls
+type: kubernetes.io/tls
+data:
+  tls.crt: |
+    LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURTVENDQWpHZ0F3SUJBZ0lVSml3QjZCOW5R
+    RDUwZk1qUWUvbS83b1FUY21rd0RRWUpLb1pJaHZjTkFRRUwKQlFBd05ERVlNQllHQTFVRUF3d1Bk
+    R1Z6ZEM1cGJtZHlaWE56TG5KMU1SZ3dGZ1lEVlFRS0RBOTBaWE4wTG1sdQpaM0psYzNNdWNuVXdI
+    aGNOTWpVd01qRTFNVFUxTnpVNVdoY05Nall3TWpFMU1UVTFOelU1V2pBME1SZ3dGZ1lEClZRUURE
+    QTkwWlhOMExtbHVaM0psYzNNdWNuVXhHREFXQmdOVkJBb01EM1JsYzNRdWFXNW5jbVZ6Y3k1eWRU
+    Q0MKQVNJd0RRWUpLb1pJaHZjTkFRRUJCUUFEZ2dFUEFEQ0NBUW9DZ2dFQkFLclJuaUZUdHZkY2Ur
+    a0l6Z0FQQ3JoegprVDhNNC9NVHNkVTExeGRPNU5UMkM1bXR1Z0h6R2dIN1NJUDE1RUtqUG01bnQx
+    cVJ5cEtUTDZCallxYmRqY0RmCmV3SnRNdGtpbUdlUy9OSVhsWkNhVWdoTjRhRm1PR1B6emtJaUY4
+    dEdhRUNqRlJhc0w2VmhtcVhtU2I4djlVb1UKNlRmR3F0dEtnN0x5M0hKTVpCQlV0VWcvYkkvcStP
+    QXlSUG5uMHJlU2Vvdzk3VUxJaytHMnlLeGFaZ3dONFRFZQpRVWFidGtLbk5kUXZzMC9nSlV6eWpT
+    eDYwdjRydnROYStMNmtNdFpQQnJDYm5zS1lrcDB1WXVld0lNV1RLeE51CitTbmJ4Y1ZkSEc4ODdT
+    a1ZyWisyVzAydnBQenpJYjNXdTg4VnBnQXFWRW1VYzNYZE1tNzZZbGsxSDlUc25zRUMKQXdFQUFh
+    TlRNRkV3SFFZRFZSME9CQllFRkxUTStzQ3hZMVNsaVJTcm9La1UvNDZ4VkxNOE1COEdBMVVkSXdR
+    WQpNQmFBRkxUTStzQ3hZMVNsaVJTcm9La1UvNDZ4VkxNOE1BOEdBMVVkRXdFQi93UUZNQU1CQWY4
+    d0RRWUpLb1pJCmh2Y05BUUVMQlFBRGdnRUJBRUFRdFlUdzJSQWJUNSt0aHZuTWVaQlJOaGMvOWNn
+    dDhsanQzNklpdHpqTTRTUGYKSS91R1RCVkFXVlljb21zS2tKZDByZ3J3YVQrMGRrNU05ZnQyQ2ND
+    aEhCc3U2TDNtM0FabXpuWkJHb0dIaG91awovb1pPVFdPR0tDVW40Mm5YU0tZTERWM2VNZmV3VFBz
+    R0xWZURFUlhXWXcvREdWZ1JZYVBwOXpLaWErRjk0aThlCkFmL0JHTjdVMVA1R2d4SGlWMGRrMGhZ
+    UWp0cytkcGE3S0VycTlNcXpCTzJYd1BtQnlKRWNSM0RuSU1kOURsdkMKT3dnY0JyUktTTlUvNFNa
+    U1BPS09nMGpGQmQzUzA5OHM1ekQ2Nnhhb1U1MEhFdldkQ01TZU1kZzc1R1l0c0lqNQo1QXpCRlND
+    Lzc0dEgrMXhSMXFCMUFhR3U1aUdyTWZJQzdmM2w5N009Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0t
+    LS0KCg==
+
+  tls.key: |
+    LS0tLS1CRUdJTiBQUklWQVRFIEtFWS0tLS0tCk1JSUV2Z0lCQURBTkJna3Foa2lHOXcwQkFRRUZB
+    QVNDQktnd2dnU2tBZ0VBQW9JQkFRQ3EwWjRoVTdiM1hIdnAKQ000QUR3cTRjNUUvRE9QekU3SFZO
+    ZGNYVHVUVTlndVpyYm9COHhvQiswaUQ5ZVJDb3o1dVo3ZGFrY3FTa3krZwpZMkttM1kzQTMzc0Ni
+    VExaSXBobmt2elNGNVdRbWxJSVRlR2haamhqODg1Q0loZkxSbWhBb3hVV3JDK2xZWnFsCjVrbS9M
+    L1ZLRk9rM3hxcmJTb095OHR4eVRHUVFWTFZJUDJ5UDZ2amdNa1Q1NTlLM2tucU1QZTFDeUpQaHRz
+    aXMKV21ZTURlRXhIa0ZHbTdaQ3B6WFVMN05QNENWTThvMHNldEwrSzc3VFd2aStwRExXVHdhd201
+    N0NtSktkTG1MbgpzQ0RGa3lzVGJ2a3AyOFhGWFJ4dlBPMHBGYTJmdGx0TnI2VDg4eUc5MXJ2UEZh
+    WUFLbFJKbEhOMTNUSnUrbUpaCk5SL1U3SjdCQWdNQkFBRUNnZ0VBQ0ErRDBFK3BqVkVHMjVsMTA1
+    YkNIeSs4WjVMVGxhQ00rbW83emZLMERZalcKQmF5bkQ3RWRuY0R5WkVBNzR3bGVJSUo2U203Qlpm
+    TG1PeUcvZWE5d0lVMG1ha2dWLzMwd2Z3ZzJrQkVxOW8reQpyZWZEYlR6a0xiTEhQWk9MWndVcHRa
+    MmdlTkU3bnhpc3poWHdybEg4ZDZCR25GSStsU0ltTm5FN2hmVDgvcEIxCjFnemo0NTY1WXorcGlU
+    OElMUGZna1pqU2JDRDM1ajM0MTNIRmM3NUhqenVndExEN0czQ1YvbzFWbDRwc1BXT00KUFVDWDIy
+    Q0o4SnlyYWxSWHlTNm85WVZjWEdianZMSFdzYlhPaUk4d1JlT0FzcGUrT3BONERBb256amthUUZV
+    TQpnK0pCZ3FqRVhvZ0QzejBKNnZadGp2bVNEWW41Ym5EVVcvUTBNMEtmTVFLQmdRRHQvQWpTWXJ1
+    MVF1OVMyMnd6CmtxYktCV3FEek8xK0lHUy9RWjRIdEZSaWtPVHVmT2h3dWkxc0Nsd0FQZFVQYWNF
+    ZUhPNnRPN05TZTRZb1J5REcKMnBwZm9yaE5sNU44RXJJUThla3FZZDhwcjRQSDYxdUNNNk43dGhT
+    Wmd6ZythYTRuZTNOK3NJdS9hQ3libERmRQo4WDl3MXMrRVJpdDcxbDViWFNubFRkZStzUUtCZ1FD
+    M3YvWVovZk1lZ3NDalZNWjRqYldxK09UeS96dFppTEI4CmRMb3NUODl5aktiZHVOTGZyZ2Y3aWFL
+    dXFFVlpaakY5a0VzY05NNjVzcnE0bUhBcE1aMXVmdkZ2ZnNnMmpkVDQKYk5MelVTaGhqWDRTWXF6
+    Z1E3OEhnaTQyTXVzSEljU0Z0MWNlVjlpR2hVcjZxZFJQZENMNU9qQjNxaW54TmZ0MgpZeHFlTTdl
+    RkVRS0JnUUMrRHdFd20vOVN4SEVER0EreXBGVWxrK3U3OU1aYWF4NXFpOG5jVjB6cEp0UmVEazFI
+    CjhiZml4K2N2bmpId3pFR1pmZnV6UjdGdmx3ek9UL2ZDTjhUL3lhRXMvbmVmcUFLamU3Nzl4UW9I
+    Ylk5dDh1MnkKN3ZDS0ZTRWdkR1pQbWZDbXdYVzhZTnhLY2JUbVR4bTI1RE1sOTdmazZIRkR4akMz
+    QUpFNytzM3BFUUtCZ0g4aQpNZ1NKMEV5cjZ0MFhLcnIrVVZPYUljNS9DWEZKUWRMYWNIVjRRdS9l
+    b1JXSGExK1g2YTMvN0s4cmZjLzlCUUQ3CmRQeHZEUmt1c0VKSU5sSktJY0x4MGRweXZkUUJEZmxV
+    VWlCSFpza1lQTUk3dzZEblBxVFRUV1h5bE9xNlVsNnkKRzNUREV1MEFESUNpUUdNNDEzblk2Ty9p
+    ckdKWUYwUXlEWmluNzdJQkFvR0JBSlZMelhpQnpFUVFuN2lkSk44bgpROTcvOE1LemxvTUx5dkt1
+    eVZVWGZkZmcwNU1qYi85SktVRm5vRmpWYzFUVUw4TFV5dkN3bk05S2IwZXB4R2tuCjV1ZFY5TWll
+    d0NTT2lhbEhGQ3JIVWVkcWErOVMvNmZxME4zOUZDRlA4cnBTZ0psK2dGeWYxL21WRlltcVJrKzMK
+    MzdYVGFHaG5HUkVQTldnTFZKbWY0V1J6Ci0tLS0tRU5EIFBSSVZBVEUgS0VZLS0tLS0KCg==
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx
+spec:
+  ports:
+  - name: nginx
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  selector:
+    app: nginx
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: nginx-ingress
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: ingress.test.ru
+    http:
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+          backend: 
+            service:
+              name: nginx
+              port:
+                number: 80
+  tls:
+    - hosts:
+      - ingress.test.ru
+      secretName: nginx-tls
